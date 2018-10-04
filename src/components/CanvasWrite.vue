@@ -26,7 +26,7 @@ interface Log{
         private color = "#000000";
         private logs:Log[] = [];
         private log_name = "canvas_name";
-        private now_index = 0;
+        private now_index = -1;
 
         mouse_down(e: MouseEvent) {
             if (this.canvas == null || this.canvas_content == null) return;
@@ -81,32 +81,21 @@ interface Log{
         }
 
         prev_draw_img(){
-          if(this. now_index <=0) {
-             this.reset_canvas()
-             return;
-          };
+          if(this.now_index ===-1) return
           this.now_index--;
-          this.reset_canvas()
+          if(this.now_index === -1){
+            this.reset_canvas()
+            return
+          }
+           this.reset_canvas()
           this.draw(this.logs[this.now_index].png);
         }
         next_draw_img(){
-          if(this.logs.length<this.now_index+1) return;
-          if(this.now_index === 0){
-                         this.now_index++;
+          if(this.logs.length<=this.now_index+1) return;
+              this.now_index++;
              this.reset_canvas()
-             console.log('000000000');
-             console.log(this.now_index);
-             this.draw(this.logs[this.now_index].png);
-
-          }else{
-                         this.now_index++;
-              console.log('NOT0');
-                           console.log(this.now_index);
-             this.reset_canvas()
-             this.draw(this.logs[this.now_index].png);
-                          this.now_index++;
-          }
-
+            console.log(this.now_index);
+            this.draw(this.logs[this.now_index].png);
         }
 
         reset_canvas(){
