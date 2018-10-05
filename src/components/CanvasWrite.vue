@@ -1,6 +1,9 @@
 <template>
-	<div>
-		<canvas width='1000' height='1000' style=' border:2px solid #000;'></canvas>
+	<div class="canvas_write">
+		<div class="canvas">
+			<canvas width="800" height="800" id="back_img"></canvas>
+			<canvas id="flont_img" width='800' height='800' style=' border:2px solid #000;'></canvas>
+		</div>
 		<div>
 			<select v-model="color" @change="change_pencil">
 				<option v-for="color in colors" v-bind:key="color.code"
@@ -11,7 +14,7 @@
 			<button @click='change_eraser'>消しゴム</button>
 			<button @click="prev_draw_img()">前に戻る</button>
 			<button @click="next_draw_img()">次に進む</button>
-			<button>全消し</button>
+			<button @click="all_delete()">全消し</button>
 		</div>
 	</div>
 </template>
@@ -39,6 +42,7 @@
             {color_name: "黒色", code: "#000000"}
             , {color_name: "赤色", code: "#ff0000"}
             , {color_name: "黄色", code: "#ffff00"}];
+        private img_path = "http://localhost:8081/img/shima.2caeef91.png";
 
         mouse_down(e: MouseEvent) {
             if (this.canvas == null || this.canvas_content == null) return;
@@ -77,12 +81,22 @@
         };
 
         mounted() {
-            this.canvas = document.querySelector("canvas");
+            this.canvas = document.querySelector("#flont_img");
             if (this.canvas == null) return;
             this.canvas_content = this.canvas.getContext("2d"); // canvasの種類指定
             this.canvas.addEventListener("mousedown", this.mouse_down);
             this.canvas.addEventListener("mousemove", this.mouse_move);
             this.canvas.addEventListener("mouseup", this.mouse_up);
+            this.set_back_img();
+            this.canvas_content.globalAlpha = 1;
+        }
+
+        set_back_img() {
+            const canvas: HTMLCanvasElement = document.querySelector("#back_img");
+            const canvas_content = canvas.getContext("2d");
+            const img = new Image();
+            img.src = this.img_path;
+            img.onload = () => canvas_content.drawImage(img, 0, 0, 800, 800);
         }
 
         save_log() {
@@ -139,8 +153,29 @@
         change_pencil() {
             this.canvas_content.globalCompositeOperation = "source-over";
         }
+
+        all_delete() {
+            this.reset_canvas();
+            this.now_index = -1;
+            this.logs = [];
+        }
     }
 </script>
 
 <style scoped>
+	.canvas {
+		position: relative;
+		margin: 0 auto;
+		top: 30px;
+		right: 400px;
+	}
+
+	canvas {
+		position: absolute;
+	}
+
+	.canvas_write {
+		display: flex;
+		flex-direction: column;
+	}
 </style>
