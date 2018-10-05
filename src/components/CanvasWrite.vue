@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<canvas width='800' height='800' style=' border:2px solid #000;'></canvas>
+		<canvas width='1000' height='1000' style=' border:2px solid #000;'></canvas>
 		<div>
 			<select v-model="color" @change="change_pencil">
 				<option v-for="color in colors" v-bind:key="color.code"
@@ -34,12 +34,11 @@
         private color = "#000000";
         private logs: Log[] = [];
         private log_name = "canvas_name";
-        private now_index = 0;
+        private now_index = -1;
         private colors = [
             {color_name: "黒色", code: "#000000"}
             , {color_name: "赤色", code: "#ff0000"}
             , {color_name: "黄色", code: "#ffff00"}];
-        private img_path = "http://localhost:8081/img/shima.2caeef91.png";
 
         mouse_down(e: MouseEvent) {
             if (this.canvas == null || this.canvas_content == null) return;
@@ -84,12 +83,6 @@
             this.canvas.addEventListener("mousedown", this.mouse_down);
             this.canvas.addEventListener("mousemove", this.mouse_move);
             this.canvas.addEventListener("mouseup", this.mouse_up);
-            const img = new Image();
-            img.src = this.img_path;
-            img.onload = () => {
-                this.canvas_content.drawImage(img, 0, 0,800,800)
-		            this.save_log();
-            };
         }
 
         save_log() {
@@ -101,12 +94,12 @@
         }
 
         prev_draw_img() {
-            if (this.now_index === 0) return;
+            if (this.now_index === -1) return;
             this.now_index--;
-            // if (this.now_index === 0) {
-            //     this.reset_canvas();
-            //     return;
-            // }
+            if (this.now_index === -1) {
+                this.reset_canvas();
+                return;
+            }
             this.log_render();
         }
 
@@ -145,12 +138,6 @@
 
         change_pencil() {
             this.canvas_content.globalCompositeOperation = "source-over";
-        }
-
-        all_clear() {
-            this.reset_canvas();
-            this.now_index = 0;
-            this.logs = [this.logs[0]];
         }
     }
 </script>
