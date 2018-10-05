@@ -2,9 +2,14 @@
 	<div>
 		<canvas width='1000' height='1000' style=' border:2px solid #000;'></canvas>
 		<div>
+			<select v-model="color">
+				<option v-for="color in colors" v-bind:key="color.code"
+				:value="color.code">
+					{{color.color_name}}</option>
+			</select>
 			<button onclick=''>消しゴム</button>
 			<button @click="prev_draw_img()">前に戻る</button>
-      <button @click="next_draw_img()">次に進む</button>
+			<button @click="next_draw_img()">次に進む</button>
 			<button>全消し</button>
 		</div>
 	</div>
@@ -12,9 +17,11 @@
 
 <script lang='ts'>
     import {Component, Prop, Vue} from "vue-property-decorator";
-interface Log{
-  png:string
-}
+
+    interface Log {
+        png: string
+    }
+
     @Component
     export default class CanvasWrite extends Vue {
         private x = 0;
@@ -24,9 +31,13 @@ interface Log{
         private move_flag = false;
         private size = 12;
         private color = "#000000";
-        private logs:Log[] = [];
+        private logs: Log[] = [];
         private log_name = "canvas_name";
         private now_index = -1;
+        private colors = [
+            {color_name: "黒色", code: "#000000"}
+            , {color_name: "赤色", code: "#ff0000"}
+            , {color_name: "黄色", code: "#ffff00"}];
 
         mouse_down(e: MouseEvent) {
             if (this.canvas == null || this.canvas_content == null) return;
@@ -74,42 +85,41 @@ interface Log{
         }
 
         save_log() {
-          if (this.canvas == null || this.canvas_content == null) return;
-          const png = this.canvas.toDataURL();
-          this.logs.push({png});
-          this.now_index = this.logs.length-1;
+            if (this.canvas == null || this.canvas_content == null) return;
+            const png = this.canvas.toDataURL();
+            this.logs.push({png});
+            this.now_index = this.logs.length - 1;
         }
 
-        prev_draw_img(){
-          if(this.now_index ===-1) return
-          this.now_index--;
-          if(this.now_index === -1){
-            this.reset_canvas()
-            return
-          }
-           this.reset_canvas()
-          this.draw(this.logs[this.now_index].png);
-        }
-        next_draw_img(){
-          if(this.logs.length<=this.now_index+1) return;
-              this.now_index++;
-             this.reset_canvas()
-            console.log(this.now_index);
+        prev_draw_img() {
+            if (this.now_index === -1) return;
+            this.now_index--;
+            if (this.now_index === -1) {
+                this.reset_canvas();
+                return;
+            }
+            this.reset_canvas();
             this.draw(this.logs[this.now_index].png);
         }
 
-        reset_canvas(){
-          if(this.canvas_content == null) return;
-          this.canvas_content.clearRect(0, 0, this.canvas_content.canvas.clientWidth, this.canvas_content.canvas.clientHeight);
+        next_draw_img() {
+            if (this.logs.length <= this.now_index + 1) return;
+            this.now_index++;
+            this.reset_canvas();
+            this.draw(this.logs[this.now_index].png);
         }
 
-        draw(src:string) {
-          if(this.canvas_content == null) return;
-          console.log('draw');
-          const img = new Image();
-          img.src = src;
-          const canvas_content = this.canvas_content;
-          img.onload = ()=>canvas_content.drawImage(img,0,0);
+        reset_canvas() {
+            if (this.canvas_content == null) return;
+            this.canvas_content.clearRect(0, 0, this.canvas_content.canvas.clientWidth, this.canvas_content.canvas.clientHeight);
+        }
+
+        draw(src: string) {
+            if (this.canvas_content == null) return;
+            const img = new Image();
+            img.src = src;
+            const canvas_content = this.canvas_content;
+            img.onload = () => canvas_content.drawImage(img, 0, 0);
         }
     }
 </script>
