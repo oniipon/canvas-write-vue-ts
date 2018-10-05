@@ -88,6 +88,7 @@
         save_log() {
             if (this.canvas == null || this.canvas_content == null) return;
             const png = this.canvas.toDataURL();
+            this.logs = this.logs.filter((d, i) => i <= this.now_index);
             this.logs.push({png});
             this.now_index = this.logs.length - 1;
         }
