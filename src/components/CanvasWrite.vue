@@ -2,12 +2,13 @@
 	<div>
 		<canvas width='1000' height='1000' style=' border:2px solid #000;'></canvas>
 		<div>
-			<select v-model="color">
+			<select v-model="color" @change="change_pencil">
 				<option v-for="color in colors" v-bind:key="color.code"
-				:value="color.code">
-					{{color.color_name}}</option>
+				        :value="color.code">
+					{{color.color_name}}
+				</option>
 			</select>
-			<button onclick=''>消しゴム</button>
+			<button @click='change_eraser'>消しゴム</button>
 			<button @click="prev_draw_img()">前に戻る</button>
 			<button @click="next_draw_img()">次に進む</button>
 			<button>全消し</button>
@@ -98,15 +99,20 @@
                 this.reset_canvas();
                 return;
             }
-            this.reset_canvas();
-            this.draw(this.logs[this.now_index].png);
+            this.log_render();
         }
 
         next_draw_img() {
             if (this.logs.length <= this.now_index + 1) return;
             this.now_index++;
+            this.log_render();
+        }
+
+        log_render() {
             this.reset_canvas();
-            this.draw(this.logs[this.now_index].png);
+            const erase_flag = this.canvas_content.globalCompositeOperation === "destination-out" ? true : false;
+            this.change_pencil(); // 消しゴムモードだとレンダリングが出来ないっぽい
+            this.draw(this.logs[this.now_index].png, erase_flag);
         }
 
         reset_canvas() {
@@ -114,12 +120,23 @@
             this.canvas_content.clearRect(0, 0, this.canvas_content.canvas.clientWidth, this.canvas_content.canvas.clientHeight);
         }
 
-        draw(src: string) {
+        draw(src: string, erase_flag: boolean) {
             if (this.canvas_content == null) return;
             const img = new Image();
             img.src = src;
             const canvas_content = this.canvas_content;
-            img.onload = () => canvas_content.drawImage(img, 0, 0);
+            img.onload = () => {
+                canvas_content.drawImage(img, 0, 0);
+                if (erase_flag) this.change_eraser(); // 消しゴムモードに戻す
+            };
+        }
+
+        change_eraser() {
+            this.canvas_content.globalCompositeOperation = "destination-out";
+        }
+
+        change_pencil() {
+            this.canvas_content.globalCompositeOperation = "source-over";
         }
     }
 </script>
